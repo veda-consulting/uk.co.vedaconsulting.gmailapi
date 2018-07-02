@@ -3,7 +3,7 @@
 class CRM_Gmailapi_Page_AJAX {
   static function init() {
     if (!self::authenticate()) {
-      $output = array('is_error' => 1);
+      $output = array('is_error' => 1, 'message' => 'Could not authenticate with given token (perhaps the token has expired?)');
       CRM_Utils_JSON::output($output);
       CRM_Utils_System::civiExit();
     }
