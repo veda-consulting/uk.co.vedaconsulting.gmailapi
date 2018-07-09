@@ -80,10 +80,8 @@ class CRM_Gmailapi_Page_AJAX {
     // FIXME ::: setting validuser to true & assign source contact for now
     $isValidUser = TRUE;
     // FIX ME:
-    // outlook api need api_key in the request
     // get source contacts api key and assign it into the request
     // getApiKey();
-    $_REQUEST['api_key'] = 'server123';
 
     if ($isValidUser) {
 
