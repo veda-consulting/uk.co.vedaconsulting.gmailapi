@@ -3,7 +3,7 @@
 class CRM_Gmailapi_Page_AJAX {
   static function init() {
     if (!self::authenticate()) {
-      $output = array('is_error' => 1);
+      $output = array('is_error' => 1, 'message' => 'Could not authenticate with given token (perhaps the token has expired?)');
       CRM_Utils_JSON::output($output);
       CRM_Utils_System::civiExit();
     }
@@ -80,10 +80,8 @@ class CRM_Gmailapi_Page_AJAX {
     // FIXME ::: setting validuser to true & assign source contact for now
     $isValidUser = TRUE;
     // FIX ME:
-    // outlook api need api_key in the request
     // get source contacts api key and assign it into the request
     // getApiKey();
-    $_REQUEST['api_key'] = 'server123';
 
     if ($isValidUser) {
 
@@ -91,8 +89,17 @@ class CRM_Gmailapi_Page_AJAX {
       // if email address found, assign params to call activty API
       if (isset($_REQUEST['email'])) {
         // extract valid email address from the email string : Eg: Gopi Krishna <gopi@vedaconsulting.co.uk>
-        $email = self::extractValidEmail($_REQUEST['email'], '<', '>');
-        $params['email'] = $email;
+        $emailParts = self::extractValidEmail($_REQUEST['email'], '<', '>');
+        $params['email'] = $email = $emailParts['email'];
+        if (array_key_exists('name', $emailParts)) {
+          $params['name'] = $emailParts['name'];
+        }
+      }
+      if (isset($_REQUEST['name'])) {
+        $params['name'] = $_REQUEST['name'];
+      }
+      if (isset($_REQUEST['date_time'])) {
+        $params['date_time'] = $_REQUEST['date_time'];
       }
       if (isset($_REQUEST['subject'])) {
         $params['subject'] = $_REQUEST['subject'];
@@ -224,20 +231,15 @@ class CRM_Gmailapi_Page_AJAX {
     $pos = stripos($string, $start);
     // return the actual email string, if '<' not found in the email string
     if ($pos == '') {
-      return $string;
+      return array('email' => $string);
     }
-
+    $name = substr($string, 0, $pos);
     $str = substr($string, $pos);
-
     $str_two = substr($str, strlen($start));
-
     $second_pos = stripos($str_two, $end);
-
     $str_three = substr($str_two, 0, $second_pos);
-
     $unit = trim($str_three); // remove whitespaces
-
-    return $unit;
+    return array('name' => $name, 'email' => $unit);
   }
 
 
